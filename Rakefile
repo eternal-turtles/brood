@@ -1,0 +1,16 @@
+# frozen_string_literal: true
+
+## Copyright (c) 2024 John Newton
+## SPDX-License-Identifier: Apache-2.0
+
+require "bundler/gem_tasks"
+require "rake/testtask"
+require "standard/rake"
+
+Rake::TestTask.new(:test) do |t|
+  t.libs << "test"
+  t.libs << "lib"
+  t.test_files = FileList["test/**/test_*.rb"]
+end
+
+task default: %i[test standard]
