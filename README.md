@@ -50,20 +50,27 @@ end
 @brood = Brood.new
 
 # Fabricate objects:
-gizmos = @brood.set([:department, :gizmos], {name: "Gizmos"}) # => Department instance
-@brood.set([:user, :bar], {id: 12, name: "Bar"}) # => User instance
-@brood.set([:user, :baaz], {name: "Baaz"}) # => User instance
+gizmos = @brood.create([:department, :gizmos], {name: "Gizmos"}) # => Department instance
+@brood.create([:user, :bar], {id: 12, name: "Bar"}) # => User instance
+@brood.create([:user, :baaz], {name: "Baaz"}) # => User instance
 
 # Pass a block to customize the object (forwarded to the Fabricator block argument):
-@brood.set([:user, :baar], {name: "Baar"}) do |user|
+@brood.create([:user, :baar], {name: "Baar"}) do |user|
   user.department = gizmos
 end
+
+# Skip persistence (calls Fabricate.build)
+gadgets = @brood.build([:department, :gadgets], {name: "Gadgets"}) # => Department instance
+foobar = @brood.build([:user, :foobar], {name: "Foobar"}) do |user|
+  user.department = gadgets
+end # => User instance
 
 # Retrieve objects:
 @brood.get([:user, :bar]) # => User instance
 @brood.get([:user, :baaz]) # => User instance
+@brood.get([:user, :foobar]) # => User instance
+@brood.get([:bogus, :bar]) # raises Brood::UnknownObjectTypeError
 @brood.get([:user, :quux]) # raises Brood::ObjectNotFoundError
-@brood.get([:bogus, :bar]) # raises ArgumentError
 
 # Pass a block to customize and lock the object:
 @brood.get([:user, :bar]) do |user|

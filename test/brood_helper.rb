@@ -6,14 +6,14 @@
 module BroodHelper
   def department_brood
     Brood.new.tap do |brood|
-      widgets_qc = brood.set(
+      widgets_qc = brood.create(
         %i[department widgets_qc],
         {
           name: "Widgets Quality Control"
         }
       )
 
-      brood.set(
+      brood.create(
         %i[user alice],
         {
           id: 32_432,
@@ -24,7 +24,7 @@ module BroodHelper
         widgets_qc.users << user
       end
 
-      brood.set(
+      brood.create(
         %i[user anne],
         id: 8932,
         name: "Anne",
@@ -34,7 +34,7 @@ module BroodHelper
         user
       end
 
-      brood.set(%i[user bill],
+      brood.create(%i[user bill],
         {
           id: 3232,
           name: "Bill",
@@ -42,7 +42,7 @@ module BroodHelper
         }) do |user|
         widgets_qc.users << user
       end
-      brood.set(%i[user ivan],
+      brood.create(%i[user ivan],
         {
           id: 12,
           name: "Ivan",
@@ -51,26 +51,32 @@ module BroodHelper
         widgets_qc.users << user
       end
 
-      gizmos_qc = brood.set(%i[department gizmos_qc],
+      gizmos_qc = brood.create(%i[department gizmos_qc],
         {
           name: "Gizmos Quality Control"
         })
 
-      brood.set(%i[user henry],
+      brood.create(%i[user henry],
         {
           name: "Henry",
           department: gizmos_qc
         })
 
-      brood.set(%i[user sam],
+      brood.create(%i[user sam],
         {
           name: "Sam",
           department: gizmos_qc
         })
 
-      brood.set(%i[user irina],
+      brood.create(%i[user irina],
         {
           name: "Irina",
+          department: gizmos_qc
+        })
+
+      brood.build(%i[user foobar],
+        {
+          name: "Foobar",
           department: gizmos_qc
         })
     end

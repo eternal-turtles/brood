@@ -16,14 +16,11 @@ class Brood
   # Error raised when attempting to re-define an object for the given key.
   class ObjectAlreadyDefinedError < Error; end
 
-  # Error raised when an object is not found for the given key.
-  class ObjectNotFoundError < Error; end
-
-  # Error raised when an object does not match its specified type.
-  class ObjectTypeError < Error; end
-
   # Error raised when attempting to retrieve an unknown object-type.
   class UnknownObjectTypeError < Error; end
+
+  # Error raised when an object is not found for the given key.
+  class ObjectNotFoundError < Error; end
 
   def initialize
     @store = {}
@@ -38,18 +35,34 @@ class Brood
   # @raise [ArgumentError] If the arguments are invalid.
   # @raise [ObjectAlreadyDefinedError] If an object is already defined for the key.
   # @return [Object] The fabricated object.
-  def set(key, attributes, &)
+  def create(key, attributes, &)
     object_type, object_name = key
     validate_arguments(object_type, object_name)
 
     create_object(object_type, object_name, attributes, &)
   end
 
+  # Adds an object to the store, skipping persistence.
+  #
+  # @param key [Array<Symbol, Symbol>] The key representing the object type and name.
+  # @param attributes [Hash] Optional attributes for the object.
+  # @yield Optional block to customize the object.
+  # @raise [ArgumentError] If the arguments are invalid.
+  # @raise [ObjectAlreadyDefinedError] If an object is already defined for the key.
+  # @return [Object] The fabricated object.
+  def build(key, attributes, &)
+    object_type, object_name = key
+    validate_arguments(object_type, object_name)
+
+    build_object(object_type, object_name, attributes, &)
+  end
+
   # Retrieves an object from the store.
   #
   # @param key [Array<Symbol, Symbol>] The key representing the object type and name.
-  # @yield Optional block to customize the object; the object is locked.
+  # @yield Optional block to customize the object; access to the object is protected by a thread lock.
   # @raise [ArgumentError] If the arguments are invalid.
+  # @raise [UnknownObjectTypeError] If the object-type keyword has no entries.
   # @raise [ObjectNotFoundError] If the object is not found.
   # @return [Object] The fabricated object.
   def get(key, &block)
@@ -85,6 +98,18 @@ class Brood
         "A object is already defined: (#{object_type} #{object_name})"
     end
     @store[object_type][:objects][object_name] = Fabricate(
+      object_type, **attributes, &
+    )
+  end
+
+  def build_object(object_type, object_name, attributes, &)
+    @store[object_type] ||= {}
+    @store[object_type][:objects] ||= {}
+    if @store[object_type][:objects].key?(object_name)
+      raise ObjectAlreadyDefinedError,
+        "A object is already defined: (#{object_type} #{object_name})"
+    end
+    @store[object_type][:objects][object_name] = Fabricate.build(
       object_type, **attributes, &
     )
   end
