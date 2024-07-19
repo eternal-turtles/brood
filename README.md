@@ -35,7 +35,7 @@ class User
   attr_accessor :id, :name, :department, :counter
 end
 
-# Define fabricators for models at spec/fabricators/*_fabricatory.rb.
+# Define fabricators for models at spec/fabricators/*_fabricator.rb.
 Fabricator(:department) do
   id { sequence(:id) }
   name
